@@ -7,10 +7,10 @@
 
 #define static_strlen(field) (sizeof(field) / sizeof(field[0]))
 
-int http_get(string *response, const char *url);
+int http_get(String *response, const char *url);
 int http_download(const char *filename, const char *url);
 
-static size_t curl_writecb(void *ptr, size_t size, size_t nmemb, string *str)
+static size_t curl_writecb(void *ptr, size_t size, size_t nmemb, String *str)
 {
 	size_t chunksize;
 
@@ -27,7 +27,7 @@ static size_t curl_writecb_file(void *ptr, size_t size, size_t nmemb, FILE *stre
 	return(written);
 }
 
-int http_get(string *response, const char *url)
+int http_get(String *response, const char *url)
 {
 	CURL *curl;
 	CURLcode res;
@@ -68,7 +68,7 @@ int http_get(string *response, const char *url)
 		return(status);
 }
 
-int http_post(string *response, const char *url, const char *buffer)
+int http_post(String *response, const char *url, const char *buffer)
 {
 	CURL *curl;
 	CURLcode res;
