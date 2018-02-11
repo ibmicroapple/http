@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <curl/curl.h>
-#include "d_string.h"
+#include "dstring/dstring.h"
 
 #define static_strlen(field) (sizeof(field) / sizeof(field[0]))
 

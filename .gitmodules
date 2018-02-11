@@ -1,0 +1,4 @@
+[submodule "dstring"]
+	path = dstring
+	url = https://github.com/ibmicroapple/dstring
+	branch = master
