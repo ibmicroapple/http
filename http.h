@@ -3,12 +3,17 @@
 
 #include <stdint.h>
 #include <curl/curl.h>
+#include <pthread.h>
 #include "dstring/dstring.h"
 
 #define static_strlen(field) (sizeof(field) / sizeof(field[0]))
 
 int http_get(String *response, const char *url);
+int http_post(String *response, const char *url, const char *buffer);
 int http_download(const char *filename, const char *url);
+int http_get_async(String *response, const char *url);
+int http_post_async(String *response, const char *url, const char *buffer);
+int http_download_async(const char *filename, const char *url);
 
 static size_t curl_writecb(void *ptr, size_t size, size_t nmemb, String *str)
 {
@@ -157,6 +162,82 @@ int http_download(const char *filename, const char *url)
 		curl_easy_cleanup(curl);
 		return(status);
 
+}
+
+typedef struct
+{
+	String *response;
+	const char *url;
+} http_get_thread_container;
+
+void *http_async_get_helper(void *vptr)
+{
+	http_get_thread_container *container = (http_get_thread_container*)vptr;
+
+	http_get(container->response, container->url);
+
+	return(0);
+}
+
+void http_async_get(String *response, const char *url)
+{
+	pthread_t tid;
+	http_get_thread_container container;
+
+	container.response = response;
+	container.url = url;
+
+	pthread_create(&tid, 0, http_async_get_helper, (void*)&container);
+}
+
+typedef struct
+{
+	String *response;
+	const char *url;
+	const char *buffer;
+} http_post_thread_container;
+
+void *http_async_post_helper(void *vptr)
+{
+	http_post_thread_container *container = (http_post_thread_container*)vptr;
+
+	http_post(container->response, container->url, container->buffer);
+}
+
+void http_async_post(String *response, const char *url, const char *buffer)
+{
+	pthread_t tid;
+	http_post_thread_container container;
+
+	container.response = response;
+	container.url = url;
+	container.buffer = buffer;
+
+	pthread_create(&tid, 0, http_async_post_helper, (void*)&container);
+}
+
+typedef struct
+{
+	const char *url;
+	const char *filename;
+} http_download_thread_container;
+
+void *http_async_download_helper(void *vptr)
+{
+	http_download_thread_container *container = (http_download_thread_container*)vptr;
+
+	http_download(container->filename, container->url);
+}
+
+void http_async_download(const char *filename, const char *url)
+{
+	pthread_t tid;
+	http_download_thread_container container;
+
+	container.filename = filename;
+	container.url = url;
+
+	pthread_create(&tid, 0, http_async_download_helper, (void*)&container);
 }
 
 #endif /* HTTP_H */
