@@ -160,7 +160,7 @@ int http_download(const char *filename, const char *url)
 
 }
 
-#ifndef HTTP_ASYNC
+#ifdef HTTP_ASYNC
 
 /* ASYNC FUNCTIONALITY */
 
