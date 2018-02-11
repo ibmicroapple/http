@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <curl/curl.h>
-#include <pthread.h>
 #include "dstring/dstring.h"
 
 #define static_strlen(field) (sizeof(field) / sizeof(field[0]))
@@ -11,9 +10,6 @@
 int http_get(String *response, const char *url);
 int http_post(String *response, const char *url, const char *buffer);
 int http_download(const char *filename, const char *url);
-int http_get_async(String *response, const char *url);
-int http_post_async(String *response, const char *url, const char *buffer);
-int http_download_async(const char *filename, const char *url);
 
 static size_t curl_writecb(void *ptr, size_t size, size_t nmemb, String *str)
 {
@@ -164,6 +160,16 @@ int http_download(const char *filename, const char *url)
 
 }
 
+#ifndef HTTP_ASYNC
+
+/* ASYNC FUNCTIONALITY */
+
+#include <pthread.h>
+
+int http_get_async(String *response, const char *url);
+int http_post_async(String *response, const char *url, const char *buffer);
+int http_download_async(const char *filename, const char *url);
+
 typedef struct
 {
 	String *response;
@@ -239,5 +245,7 @@ void http_async_download(const char *filename, const char *url)
 
 	pthread_create(&tid, 0, http_async_download_helper, (void*)&container);
 }
+
+#endif /* HTTP_ASYNC */
 
 #endif /* HTTP_H */
